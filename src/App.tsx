@@ -33,11 +33,14 @@ export default function App() {
             setDate={setBirthday}
           />
           <Input
-            value={expectancyYears}
-            onChange={(e) => setExpectancyYears(Number(e.target.value))}
+            value={expectancyYears !== undefined ? expectancyYears : ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setExpectancyYears(value === "" ? undefined : Number(value));
+            }}
             type="number"
             className="mt-4 text-center"
-            placeholder="        Life Expectancy (years)"
+            placeholder="Life Expectancy (years)"
             min={0}
             max={120}
           />
