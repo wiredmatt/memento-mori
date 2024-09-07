@@ -6,10 +6,10 @@ interface TimeLeftProps {
   expectancyYears: number;
 }
 
-const SQUARE_SIZE_DESKTOP = 16;
+const SQUARE_SIZE_DESKTOP = 4;
 const SQUARE_SIZE_MOBILE = 2;
 
-const MARGIN_DESKTOP = 2;
+const MARGIN_DESKTOP = 1;
 const MARGIN_MOBILE = 1;
 
 const TOTAL_SIZE_DESKTOP = SQUARE_SIZE_DESKTOP + MARGIN_DESKTOP;
@@ -83,7 +83,7 @@ const TimeLeft: React.FC<TimeLeftProps> = ({ birthday, expectancyYears }) => {
   }, [birthday, expectancyYears]);
 
   return (
-    <div className="w-full max-w-6xl">
+    <div>
       <p className="text-sm text-gray-500">
         {daysPassed} / {totalDays}
       </p>
