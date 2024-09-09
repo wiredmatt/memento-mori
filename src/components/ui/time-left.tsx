@@ -1,5 +1,6 @@
+import { useDebounce } from "@/hooks/useDebounce";
 import { addYears, differenceInDays } from "date-fns";
-import React, { useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
 interface TimeLeftProps {
   birthday: Date;
@@ -17,10 +18,40 @@ const TOTAL_SIZE_MOBILE = SQUARE_SIZE_MOBILE + MARGIN_MOBILE;
 
 const COLUMNS = 52; // One year in weeks
 
-const TimeLeft: React.FC<TimeLeftProps> = ({ birthday, expectancyYears }) => {
+const TimeLeft: FC<TimeLeftProps> = ({ birthday, expectancyYears }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [totalDays, setTotalDays] = React.useState(0);
-  const [daysPassed, setDaysPassed] = React.useState(0);
+  const [totalDays, setTotalDays] = useState(0);
+  const [daysPassed, setDaysPassed] = useState(0);
+
+  // use debounce to avoid unnecessary re-renders and performance issues
+  const debouncedExpectancyYears = useDebounce(expectancyYears, 125);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const deathDate = addYears(birthday, debouncedExpectancyYears);
+    const totalDays = differenceInDays(deathDate, birthday);
+    const daysPassed = differenceInDays(new Date(), birthday);
+
+    setTotalDays(totalDays);
+    setDaysPassed(daysPassed);
+
+    const handleResize = () => {
+      const isMobile = window.innerWidth <= 768; // Tailwind's md breakpoint
+      drawCanvas(canvas, ctx, totalDays, daysPassed, isMobile);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [birthday, debouncedExpectancyYears]);
 
   const drawCanvas = (
     canvas: HTMLCanvasElement,
@@ -55,36 +86,9 @@ const TimeLeft: React.FC<TimeLeftProps> = ({ birthday, expectancyYears }) => {
     }
   };
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const deathDate = addYears(birthday, expectancyYears);
-    const totalDays = differenceInDays(deathDate, birthday);
-    const daysPassed = differenceInDays(new Date(), birthday);
-
-    setTotalDays(totalDays);
-    setDaysPassed(daysPassed);
-
-    const handleResize = () => {
-      const isMobile = window.innerWidth <= 768; // Tailwind's md breakpoint
-      drawCanvas(canvas, ctx, totalDays, daysPassed, isMobile);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [birthday, expectancyYears]);
-
   return (
     <div>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-500 text-end md:text-left">
         {daysPassed} / {totalDays}
       </p>
 

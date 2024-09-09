@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import TimeLeft from "@/components/ui/time-left";
 import { useState } from "react";
 
+const MAX_AGE = 120;
+
 export default function App() {
   const [birthday, setBirthday] = useState<Date | undefined>(undefined);
   const [expectancyYears, setExpectancyYears] = useState<number | undefined>(
@@ -36,13 +38,14 @@ export default function App() {
             value={expectancyYears !== undefined ? expectancyYears : ""}
             onChange={(e) => {
               const value = e.target.value;
-              setExpectancyYears(value === "" ? undefined : Number(value));
+              Number(value) <= MAX_AGE &&
+                setExpectancyYears(value === "" ? undefined : Number(value));
             }}
             type="number"
             className="mt-4 text-center"
             placeholder="Life Expectancy (years)"
             min={0}
-            max={120}
+            max={MAX_AGE}
           />
           <cite className="mt-4 text-sm md:text-md ">
             "Think of yourself as dead. You have lived your life. Now, take
